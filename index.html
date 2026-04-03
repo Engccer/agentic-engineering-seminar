@@ -332,7 +332,9 @@ ul li::before { content: '\25B8'; position: absolute; left: 0; color: #a78bfa; }
       <li><code>laugh</code>의 발음 대신 <span class="coral">AI의 진짜 웃음소리</span>가 나오는 유쾌한 버그</li>
       <li>"AI가 실수를 할 수도 있구나!" 학생들의 흥미 유발</li>
     </ul>
-    <div style="margin-top: 2vh; text-align: center;">
+    <div style="margin-top: 2vh; text-align: center; display: flex; gap: 0.8em; justify-content: center; flex-wrap: wrap;">
+      <button class="demo-link" id="btn-laugh-wrong" style="cursor:pointer;border:1px solid rgba(255,107,138,0.4);background:rgba(255,107,138,0.1);color:#ff6b8a;" aria-label="AI가 잘못 생성한 laugh 웃음소리 듣기">&#x1F923; AI의 실수</button>
+      <button class="demo-link" id="btn-laugh-correct" style="cursor:pointer;border:1px solid rgba(93,230,200,0.4);background:rgba(93,230,200,0.1);color:#5de6c8;" aria-label="수정된 laugh 정상 발음 듣기">&#x2705; 수정된 발음</button>
       <a class="demo-link" href="https://engccer.github.io/word-bomb-L1/" target="_blank" rel="noopener" aria-label="Word Bomb 데모 열기">Word Bomb 데모</a>
     </div>
   </div>
@@ -708,6 +710,26 @@ document.getElementById('audioToggle').addEventListener('click', function() {
 
 document.getElementById('audioToggle').addEventListener('keydown', function(e) {
   if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.click(); }
+});
+
+// ===== LAUGH DEMO BUTTONS =====
+document.getElementById('btn-laugh-wrong').addEventListener('click', function(e) {
+  e.stopPropagation();
+  stopCurrentAudio();
+  currentAudio = new Audio('sfx/laugh-wrong.wav');
+  currentAudio.play().catch(function() {});
+});
+document.getElementById('btn-laugh-wrong').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); this.click(); }
+});
+document.getElementById('btn-laugh-correct').addEventListener('click', function(e) {
+  e.stopPropagation();
+  stopCurrentAudio();
+  currentAudio = new Audio('sfx/laugh-correct.wav');
+  currentAudio.play().catch(function() {});
+});
+document.getElementById('btn-laugh-correct').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); this.click(); }
 });
 
 // ===== INIT =====
