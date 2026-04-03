@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>시각장애인 교사의 에이전틱 엔지니어링 실전기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Noto Sans KR', sans-serif; background: #0d1117; color: #e6edf3; }
+
+/* ===== AMBIENT PARTICLES ===== */
+.particles {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;
+  overflow: hidden;
+}
+.particle {
+  position: absolute; border-radius: 50%; opacity: 0;
+  animation: drift var(--dur) ease-in-out infinite;
+  animation-delay: var(--delay);
+}
+@keyframes drift {
+  0% { opacity: 0; transform: translateY(100vh) scale(0); }
+  15% { opacity: 0.4; }
+  85% { opacity: 0.2; }
+  100% { opacity: 0; transform: translateY(-10vh) scale(1); }
+}
+
+/* ===== SLIDE SYSTEM ===== */
+.slide-container {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;
+}
+.slide {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 5vh 6vw;
+  opacity: 0; transform: scale(0.97);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 30%, #161b22 0%, #0d1117 60%);
+}
+.slide.active {
+  opacity: 1; transform: scale(1); pointer-events: auto;
+}
+
+/* ===== PROGRESS BAR ===== */
+.progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px; z-index: 100;
+  background: linear-gradient(90deg, #a78bfa, #5de6c8, #f5c842);
+  transition: width 0.5s ease;
+}
+
+/* ===== TYPOGRAPHY ===== */
+h1 { font-size: clamp(1.8rem, 4.5vw, 3.2rem); font-weight: 900; line-height: 1.3; text-align: center; }
+h2 { font-size: clamp(1.5rem, 3.5vw, 2.4rem); font-weight: 700; line-height: 1.3; text-align: center; margin-bottom: 3vh; }
+h3 { font-size: clamp(1.1rem, 2.5vw, 1.6rem); font-weight: 500; line-height: 1.4; }
+p, li { font-size: clamp(0.95rem, 1.8vw, 1.25rem); line-height: 1.8; }
+ul { list-style: none; padding: 0; }
+ul li { padding-left: 1.5em; position: relative; margin-bottom: 0.6em; }
+ul li::before { content: '\25B8'; position: absolute; left: 0; color: #a78bfa; }
+
+/* ===== COLOR ACCENTS ===== */
+.gold { color: #f5c842; }
+.cyan { color: #5de6c8; }
+.purple { color: #a78bfa; }
+.coral { color: #ff6b8a; }
+.dim { color: #8b949e; }
+
+/* ===== GLASS CARD ===== */
+.glass {
+  background: rgba(22, 27, 34, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(167, 139, 250, 0.15);
+  border-radius: 16px;
+  padding: 3vh 3vw;
+  max-width: 900px;
+  width: 100%;
+}
+
+/* ===== BADGE ===== */
+.badge {
+  display: inline-block; padding: 0.25em 0.75em; border-radius: 999px;
+  font-size: 0.85rem; font-weight: 500;
+}
+.badge-purple { background: rgba(167, 139, 250, 0.2); color: #a78bfa; }
+.badge-cyan { background: rgba(93, 230, 200, 0.2); color: #5de6c8; }
+.badge-gold { background: rgba(245, 200, 66, 0.2); color: #f5c842; }
+
+/* ===== DEMO LINK ===== */
+.demo-link {
+  display: inline-block; padding: 0.5em 1.2em; border-radius: 8px;
+  font-size: 0.9rem; font-weight: 500; text-decoration: none;
+  border: 1px solid rgba(93, 230, 200, 0.4);
+  background: rgba(93, 230, 200, 0.1); color: #5de6c8;
+  cursor: pointer; transition: background 0.2s;
+  margin: 0.3em;
+}
+.demo-link:hover, .demo-link:focus { background: rgba(93, 230, 200, 0.25); outline: 2px solid #5de6c8; }
+
+/* ===== TWO COLUMN ===== */
+.two-col {
+  display: flex; gap: 2vw; align-items: flex-start; width: 100%; max-width: 900px;
+}
+.two-col > .col { flex: 1; }
+@media (max-width: 700px) { .two-col { flex-direction: column; } }
+
+/* ===== SLIDE IMAGE ===== */
+.slide-img {
+  max-width: 320px; max-height: 280px; border-radius: 12px;
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  object-fit: cover;
+}
+
+/* ===== SLIDE BACKGROUND IMAGE ===== */
+.slide[data-bg] {
+  background-size: cover; background-position: center;
+}
+.slide[data-bg]::before {
+  content: ''; position: absolute; inset: 0;
+  background: rgba(13, 17, 23, 0.82);
+  z-index: 0;
+}
+.slide[data-bg] > * { position: relative; z-index: 1; }
+
+/* ===== SUBTITLE ===== */
+.subtitle { font-size: clamp(1rem, 2vw, 1.3rem); color: #8b949e; text-align: center; margin-top: 1vh; }
+
+/* ===== ROADMAP ===== */
+.roadmap { display: flex; flex-direction: column; gap: 1.2vh; width: 100%; max-width: 800px; }
+.roadmap-item {
+  display: flex; align-items: center; gap: 1em;
+  padding: 1vh 1.5vw; border-radius: 10px;
+  background: rgba(22, 27, 34, 0.5);
+  border-left: 3px solid transparent;
+  transition: background 0.2s;
+}
+.roadmap-item.vibe { border-left-color: #a78bfa; }
+.roadmap-item.agentic { border-left-color: #5de6c8; }
+.roadmap-num { font-size: 1.5rem; font-weight: 900; min-width: 2em; text-align: center; }
+.roadmap-text { font-size: clamp(0.9rem, 1.6vw, 1.1rem); }
+
+/* ===== COMPARE GRID ===== */
+.compare-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2vw;
+  width: 100%; max-width: 900px;
+}
+@media (max-width: 700px) { .compare-grid { grid-template-columns: 1fr; } }
+.compare-card {
+  background: rgba(22, 27, 34, 0.5);
+  backdrop-filter: blur(12px);
+  border-radius: 14px; padding: 2.5vh 2vw;
+  border: 1px solid rgba(167, 139, 250, 0.1);
+}
+.compare-card h3 { text-align: center; margin-bottom: 1.5vh; }
+
+/* ===== QUOTE ===== */
+.quote {
+  border-left: 3px solid #f5c842;
+  padding: 1vh 2vw;
+  font-style: italic;
+  color: #c9d1d9;
+  margin: 1.5vh 0;
+}
+
+/* ===== NAVIGATION BAR ===== */
+.nav-bar {
+  position: fixed; bottom: 2vh; left: 50%; transform: translateX(-50%);
+  z-index: 100;
+  display: flex; align-items: center; gap: 1.5em;
+  background: rgba(13, 17, 23, 0.85);
+  backdrop-filter: blur(10px);
+  padding: 0.6em 1.5em; border-radius: 999px;
+  border: 1px solid rgba(167, 139, 250, 0.15);
+}
+.nav-btn {
+  background: none; border: none; color: #8b949e; font-size: 0.95rem;
+  cursor: pointer; padding: 0.4em 0.8em; border-radius: 6px;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: color 0.2s, background 0.2s;
+}
+.nav-btn:hover, .nav-btn:focus { color: #e6edf3; background: rgba(167, 139, 250, 0.15); outline: none; }
+#slideCounter { color: #8b949e; font-size: 0.9rem; font-variant-numeric: tabular-nums; min-width: 4em; text-align: center; }
+
+/* ===== AUDIO TOGGLE ===== */
+.audio-toggle {
+  position: fixed; top: 1.5vh; right: 2vw; z-index: 100;
+  background: rgba(22, 27, 34, 0.7); border: 1px solid rgba(167, 139, 250, 0.2);
+  color: #e6edf3; font-size: 1.3rem; border-radius: 50%;
+  width: 2.5em; height: 2.5em; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+}
+.audio-toggle:hover, .audio-toggle:focus { background: rgba(167, 139, 250, 0.2); outline: 2px solid #a78bfa; }
+
+/* ===== SCREEN READER ONLY ===== */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* ===== KEY POINT ===== */
+.key-point {
+  background: rgba(245, 200, 66, 0.08);
+  border: 1px solid rgba(245, 200, 66, 0.2);
+  border-radius: 10px; padding: 1.5vh 2vw;
+  margin: 1vh 0;
+}
+
+/* ===== SKILL TREE ===== */
+.skill-list {
+  display: flex; flex-wrap: wrap; gap: 0.5em; justify-content: center;
+  margin: 1.5vh 0;
+}
+.skill-tag {
+  display: inline-block; padding: 0.3em 0.7em; border-radius: 6px;
+  font-size: 0.8rem; background: rgba(93, 230, 200, 0.1);
+  border: 1px solid rgba(93, 230, 200, 0.2); color: #5de6c8;
+}
+
+/* ===== LINKS LIST ===== */
+.links-list { text-align: left; max-width: 700px; margin: 0 auto; }
+.links-list a { color: #5de6c8; text-decoration: none; }
+.links-list a:hover, .links-list a:focus { text-decoration: underline; outline: 2px solid #5de6c8; }
+</style>
+</head>
+<body>
+
+<!-- Ambient particles -->
+<div class="particles" id="particles" aria-hidden="true"></div>
+
+<!-- Progress bar -->
+<div class="progress-bar" id="progressBar" role="progressbar" aria-label="프레젠테이션 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+
+<!-- Audio toggle -->
+<button class="audio-toggle" id="audioToggle" aria-label="오디오 켜기/끄기" aria-pressed="true" title="오디오 켜기/끄기">&#x1F50A;</button>
+
+<!-- ============ SLIDES ============ -->
+<div class="slide-container">
+
+<!-- Slide 1: Title -->
+<section class="slide" id="slide-1" data-sfx="section-change" data-bg aria-label="슬라이드 1: 타이틀" style="background-image: url('images/image-1.png');">
+  <span class="badge badge-gold" style="margin-bottom: 2vh;">2026 한국시각장애교육재활학회 춘계 세미나</span>
+  <h1>시각장애인 교사의<br><span class="cyan">에이전틱 엔지니어링</span> 실전기</h1>
+  <p class="subtitle">수업용 미니게임 제작부터 조직 운영까지 AI로 자동화하기</p>
+  <p style="margin-top: 3vh; color: #8b949e;">
+    <strong class="gold">김헌용</strong> · 신명중학교 영어 교사<br>
+    함께하는장애인교원노동조합 위원장
+  </p>
+  <p class="dim" style="margin-top: 2vh; font-size: 0.85rem;">2026. 4. 3. 여의도 이룸센터</p>
+</section>
+
+<!-- Slide 2: Claude Code와 만나다 -->
+<section class="slide" id="slide-2" data-sfx="slide-transition" aria-label="슬라이드 2: Claude Code와 만나다">
+  <h2>Claude Code와 만나다</h2>
+  <div class="glass">
+    <ul>
+      <li>시각장애가 있는 영어 교사이자 장교조 위원장</li>
+      <li>2025년 8월부터 <span class="purple">Claude Code</span> 사용 시작</li>
+      <li>채팅창이 아닌 <span class="gold">터미널에서 돌아가는 AI 코딩 에이전트</span></li>
+      <li>파일을 읽고, 코드를 쓰고, 실행하고, 에러가 나면 스스로 고친다</li>
+      <li>프레젠테이션, 미니게임, 풀스택 웹앱까지 코드 한 줄 없이 제작</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Slide 3: 바이브 코딩 vs 에이전틱 엔지니어링 -->
+<section class="slide" id="slide-3" data-sfx="slide-transition" aria-label="슬라이드 3: 바이브 코딩 vs 에이전틱 엔지니어링">
+  <h2>두 가지 핵심 개념</h2>
+  <div class="compare-grid">
+    <div class="compare-card">
+      <h3><span class="purple">바이브 코딩</span></h3>
+      <p class="dim" style="font-size:0.85rem; text-align:center; margin-bottom:1vh;">Karpathy, 2025.02</p>
+      <ul>
+        <li>자연어로 AI에게 설명하면 코드가 나온다</li>
+        <li>코드가 어떻게 생겼는지는 신경 쓰지 않는다</li>
+        <li>초점은 <span class="gold">산출물</span></li>
+        <li>"만들어 줘"에서 시작</li>
+      </ul>
+    </div>
+    <div class="compare-card">
+      <h3><span class="cyan">에이전틱 엔지니어링</span></h3>
+      <p class="dim" style="font-size:0.85rem; text-align:center; margin-bottom:1vh;">Karpathy, 2026.02</p>
+      <ul>
+        <li>코드를 작성하는 에이전트를 감독한다</li>
+        <li>업무 워크플로우/시스템 전체를 설계</li>
+        <li>초점은 <span class="gold">과정</span></li>
+        <li>코딩 지식이 아닌 업무 이해가 핵심</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 4: 오늘의 여정 -->
+<section class="slide" id="slide-4" data-sfx="slide-transition" aria-label="슬라이드 4: 오늘의 여정">
+  <h2>오늘의 여정</h2>
+  <div class="roadmap">
+    <div class="roadmap-item vibe">
+      <span class="roadmap-num purple">1</span>
+      <span class="roadmap-text"><span class="badge badge-purple">바이브 코딩</span> 수업용 미니게임: 학습지가 게임이 되다</span>
+    </div>
+    <div class="roadmap-item vibe">
+      <span class="roadmap-num purple">2</span>
+      <span class="roadmap-text"><span class="badge badge-purple">바이브 코딩</span> Pick Me: 동료 교사의 주문으로 3D 앱 제작</span>
+    </div>
+    <div class="roadmap-item vibe">
+      <span class="roadmap-num purple">3</span>
+      <span class="roadmap-text"><span class="badge badge-purple">바이브 코딩</span> 자리표 앱: HTML에서 풀스택으로</span>
+    </div>
+    <div class="roadmap-item agentic">
+      <span class="roadmap-num cyan">4</span>
+      <span class="roadmap-text"><span class="badge badge-cyan">에이전틱</span> HWPX-Automation: 한글 문서 자동화</span>
+    </div>
+    <div class="roadmap-item agentic">
+      <span class="roadmap-num cyan">5</span>
+      <span class="roadmap-text"><span class="badge badge-cyan">에이전틱</span> AI 중앙집행위원회: 조직 업무 자동화</span>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 5: 수업용 미니게임 -->
+<section class="slide" id="slide-5" data-sfx="slide-transition" aria-label="슬라이드 5: 수업용 미니게임">
+  <span class="badge badge-purple" style="margin-bottom: 1.5vh;">바이브 코딩 사례 1</span>
+  <h2>수업용 미니게임: 학습지가 게임이 되다</h2>
+  <div class="glass">
+    <ul>
+      <li><span class="gold">Word Bomb</span>: 영어 정의를 듣고 단어를 맞히는 게임</li>
+      <li>공강 시간에 <span class="cyan">30분</span> 만에 첫 버전 완성</li>
+      <li><code>laugh</code>의 발음 대신 <span class="coral">AI의 진짜 웃음소리</span>가 나오는 유쾌한 버그</li>
+      <li>"AI가 실수를 할 수도 있구나!" 학생들의 흥미 유발</li>
+    </ul>
+    <div style="margin-top: 2vh; text-align: center;">
+      <a class="demo-link" href="https://engccer.github.io/word-bomb-L1/" target="_blank" rel="noopener" aria-label="Word Bomb 데모 열기">Word Bomb 데모</a>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 6: Story Detective & Grammar Potion Lab -->
+<section class="slide" id="slide-6" data-sfx="slide-transition" aria-label="슬라이드 6: Story Detective와 Grammar Potion Lab">
+  <span class="badge badge-purple" style="margin-bottom: 1.5vh;">바이브 코딩 사례 1+</span>
+  <h2>멀티미디어 게임으로 확장</h2>
+  <div class="two-col">
+    <div class="col glass" style="margin-right: 0.5vw;">
+      <h3 class="gold" style="margin-bottom: 1vh;">Story Detective</h3>
+      <p>교과서 읽기 지문을 탐정 스토리로 재구성한 독해 퀴즈</p>
+      <p style="margin-top: 1vh;"><span class="dim">Gemini TTS + Gemini Image + ElevenLabs SFX</span></p>
+    </div>
+    <div class="col glass" style="margin-left: 0.5vw;">
+      <h3 class="gold" style="margin-bottom: 1vh;">Grammar Potion Lab</h3>
+      <p>문법 규칙을 연금술 테마로 풀어낸 게임</p>
+      <p style="margin-top: 1vh;" class="coral">교훈: 데이터의 정확성은 AI에게만 맡기면 안 된다</p>
+    </div>
+  </div>
+  <div style="margin-top: 2vh; text-align: center;">
+    <a class="demo-link" href="https://engccer.github.io/story-detective-L1/" target="_blank" rel="noopener" aria-label="Story Detective 데모 열기">Story Detective</a>
+    <a class="demo-link" href="https://engccer.github.io/grammar-potion-L1/" target="_blank" rel="noopener" aria-label="Grammar Potion Lab 데모 열기">Grammar Potion Lab</a>
+  </div>
+</section>
+
+<!-- Slide 7: Pick Me -->
+<section class="slide" id="slide-7" data-sfx="slide-transition" aria-label="슬라이드 7: Pick Me">
+  <span class="badge badge-purple" style="margin-bottom: 1.5vh;">바이브 코딩 사례 2</span>
+  <h2>Pick Me: 3D 학생 선발 앱</h2>
+  <div class="glass">
+    <ul>
+      <li>동료 교사의 요청: 무작위 선발 + 성별 지정 + 비밀 선발</li>
+      <li>Three.js 3D 애니메이션 + Web Audio API 효과음</li>
+      <li>룰렛, 로또, 낚시 세 가지 테마를 <span class="cyan">3일</span> 만에 완성</li>
+      <li>첫 프롬프트부터 <span class="gold">접근성</span> 포함: ARIA, 키보드, 고대비</li>
+    </ul>
+    <div class="key-point" style="margin-top: 1.5vh;">
+      <p><span class="coral">시행착오:</span> 코드 리뷰 중 <code>studentKey</code> 함수가 자기 자신을 호출하는 무한 재귀 버그 생성. AI는 코드를 잘 만들지만, 자기가 만든 결과를 검증하는 데는 취약하다.</p>
+    </div>
+    <div style="margin-top: 1.5vh; text-align: center;">
+      <a class="demo-link" href="https://engccer.github.io/pickme/" target="_blank" rel="noopener" aria-label="Pick Me 데모 열기">Pick Me 데모</a>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 8: 자리표 앱 -->
+<section class="slide" id="slide-8" data-sfx="slide-transition" aria-label="슬라이드 8: 자리표 앱">
+  <span class="badge badge-purple" style="margin-bottom: 1.5vh;">바이브 코딩 사례 3</span>
+  <h2>자리표 앱: HTML에서 풀스택으로</h2>
+  <div class="glass">
+    <ul>
+      <li>시작: JavaScript 배열에 이름이 하드코딩된 HTML 한 장</li>
+      <li>확장: Supabase DB + Vercel 배포 + 실시간 공유</li>
+      <li class="coral">Vercel 배포 에러: 한글 이름이 HTTP 헤더 값으로 인식</li>
+      <li class="coral">Supabase 무료 플랜 초과로 DB 자동 일시정지</li>
+    </ul>
+    <div class="key-point" style="margin-top: 1.5vh;">
+      <p>앱을 <span class="purple">"만드는"</span> 것과 <span class="cyan">"운영하는"</span> 것은 전혀 다른 문제다. 만드는 데는 30분이면 되지만, 운영하려면 앱 바깥의 환경까지 알아야 한다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 9: Transition -->
+<section class="slide" id="slide-9" data-sfx="section-change" data-bg aria-label="슬라이드 9: 바이브 코딩에서 에이전틱 엔지니어링으로" style="background-image: url('images/image-9.png');">
+  <h2>바이브 코딩에서<br><span class="cyan">에이전틱 엔지니어링</span>으로</h2>
+  <div class="compare-grid">
+    <div class="compare-card" style="border-top: 2px solid #a78bfa;">
+      <h3 class="purple">바이브 코딩</h3>
+      <ul>
+        <li>"만들어 줘"에서 시작</li>
+        <li>비교적 짧은 시간, 결과물 중심</li>
+        <li>개발과 디버깅이 단순</li>
+      </ul>
+    </div>
+    <div class="compare-card" style="border-top: 2px solid #5de6c8;">
+      <h3 class="cyan">에이전틱 엔지니어링</h3>
+      <ul>
+        <li>시스템 설계가 도전</li>
+        <li>경험이 축적되어 다음 작업을 개선</li>
+        <li>한 번 구축하면 반복 사용</li>
+      </ul>
+    </div>
+  </div>
+  <p class="dim" style="margin-top: 2vh; text-align:center;">지금 필요한 것을 지금 만드는 것 vs. 한 번 설계해서 오래 쓰는 것</p>
+</section>
+
+<!-- Slide 10: HWPX-Automation -->
+<section class="slide" id="slide-10" data-sfx="section-change" aria-label="슬라이드 10: HWPX-Automation">
+  <span class="badge badge-cyan" style="margin-bottom: 1.5vh;">에이전틱 엔지니어링 사례 1</span>
+  <h2>HWPX-Automation: 한글 문서 자동화</h2>
+  <div class="glass">
+    <ul>
+      <li>한국 학교의 모든 공문은 HWP/HWPX 형식</li>
+      <li>시각장애인에게 한컴 서식 작업은 특히 부담</li>
+      <li><span class="gold">스킬(Skill) 시스템</span>: "앱을 만드는 것"이 아니라 "방법을 가르치는 것"</li>
+      <li>여러 오픈소스 도구를 하나의 워크플로우로 연결</li>
+    </ul>
+    <div class="quote">
+      "한글 문서를 다루는 방법을 가르쳐 줄 테니, 앞으로 내가 지시하면 이 방법을 따라 해"
+    </div>
+    <div style="margin-top: 1vh; text-align: center;">
+      <a class="demo-link" href="https://github.com/Engccer/hwpx-automation" target="_blank" rel="noopener" aria-label="HWPX-Automation GitHub 열기">GitHub 저장소</a>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 11: linesegarray -->
+<section class="slide" id="slide-11" data-sfx="slide-transition" aria-label="슬라이드 11: linesegarray와의 사투">
+  <span class="badge badge-cyan" style="margin-bottom: 1.5vh;">에이전틱 엔지니어링 사례 1+</span>
+  <h2><code>linesegarray</code>와의 사투</h2>
+  <div class="glass">
+    <ul>
+      <li>HWPX 편집할 때마다 <span class="coral">"파일이 손상되었습니다"</span></li>
+      <li>수십 번의 디버깅 끝에 발견: 텍스트 한 글자만 바꿔도 손상</li>
+      <li><span class="gold">가설</span>: 텍스트 길이와 연관된 무결성 검사 존재</li>
+      <li><span class="gold">전략</span>: 구성 요소를 절반씩 제거하며 범인 추적</li>
+      <li>범인 <code>linesegarray</code>: 줄바꿈 위치 추적 요소, 삭제해도 자동 재계산</li>
+    </ul>
+    <div class="key-point" style="margin-top: 1.5vh;">
+      <p>가설을 세우고 해결 방향을 설정한 것은 <span class="gold">나</span>. 실제 제거, 확인, 안전성 입증은 <span class="purple">AI</span>. 사람의 역할은 코드를 짜는 것이 아니라, <span class="cyan">문제를 정의</span>하는 것이다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 12: AI 중앙집행위원회 -->
+<section class="slide" id="slide-12" data-sfx="section-change" aria-label="슬라이드 12: AI 중앙집행위원회">
+  <span class="badge badge-cyan" style="margin-bottom: 1.5vh;">에이전틱 엔지니어링 사례 2</span>
+  <h2>AI 중앙집행위원회</h2>
+  <div class="glass">
+    <p style="margin-bottom: 1.5vh;">장교조의 실제 조직 구조를 AI 시스템에 매핑</p>
+    <div class="skill-list">
+      <span class="skill-tag">사무총장</span>
+      <span class="skill-tag">정책실장</span>
+      <span class="skill-tag">소통실장</span>
+      <span class="skill-tag">재정국장</span>
+      <span class="skill-tag">수석 부위원장</span>
+      <span class="skill-tag">연대국장</span>
+      <span class="skill-tag">고충상담사</span>
+    </div>
+    <ul style="margin-top: 1.5vh;">
+      <li>1인 실무자의 현실: 회의록, 회계, 법령, 안내, 블로그</li>
+      <li>에이전트 간 직접 호출 불가 발견, 설계 조정</li>
+      <li>나 자신이 <span class="gold">지휘자</span>, 복합 업무는 팀 방식 병행</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Slide 13: 17개 스킬과 총회 스킬 -->
+<section class="slide" id="slide-13" data-sfx="slide-transition" aria-label="슬라이드 13: 17개 스킬과 총회 스킬">
+  <span class="badge badge-cyan" style="margin-bottom: 1.5vh;">에이전틱 엔지니어링 사례 2+</span>
+  <h2>17개 스킬의 진화</h2>
+  <div class="glass">
+    <div class="skill-list" style="margin-bottom: 1.5vh;">
+      <span class="skill-tag">공식문서 변환</span>
+      <span class="skill-tag">회의록</span>
+      <span class="skill-tag">재정보고</span>
+      <span class="skill-tag">블로그</span>
+      <span class="skill-tag">이메일</span>
+      <span class="skill-tag">문자 발송</span>
+      <span class="skill-tag">법령 모니터링</span>
+      <span class="skill-tag">조례 비교</span>
+      <span class="skill-tag">공문 수발신</span>
+      <span class="skill-tag">인사관리 비교</span>
+      <span class="skill-tag">총회</span>
+    </div>
+    <div class="key-point">
+      <p><span class="gold">총회 스킬</span>: 9개 세션의 경험이 결정화. D-35부터 D+2까지의 전체 라이프사이클이 14개 섹션의 하나의 스킬에 담겨 있다.</p>
+      <p style="margin-top:0.8vh;">내년 총회부터는 <span class="cyan">"총회 준비해 줘"</span> 한 마디면 35일간의 워크플로우가 전개된다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 14: 정리와 시사점 -->
+<section class="slide" id="slide-14" data-sfx="section-change" data-bg aria-label="슬라이드 14: 정리와 시사점" style="background-image: url('images/image-14.png');">
+  <h2>정리와 시사점</h2>
+  <div class="glass" style="max-width: 800px;">
+    <div class="key-point" style="margin-bottom: 1.5vh;">
+      <p><span class="purple">바이브 코딩</span>은 생각보다 강력하다. 공강 시간에 게임을, 3일 만에 3D 앱을 만들 수 있다. 다만 산출물의 최종 검증은 사용자의 몫이다.</p>
+    </div>
+    <div class="key-point" style="margin-bottom: 1.5vh;">
+      <p><span class="cyan">에이전틱 엔지니어링</span>은 느리고 까다롭지만, 한 번 구축한 워크플로우는 반복해서 쓸 수 있다. 필요한 것은 코딩 지식이 아니라 업무에 대한 이해다.</p>
+    </div>
+    <div class="key-point">
+      <p>이 모든 작업에서 <span class="gold">시각은 필요하지 않았다</span>. 필요했던 것은 내 수업을 이해하는 것, 내 조직을 이해하는 것, 내 도구의 가능성과 한계를 아는 것이었다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Slide 15: 참고 자료 -->
+<section class="slide" id="slide-15" data-sfx="section-change" data-bg aria-label="슬라이드 15: 참고 자료 및 링크" style="background-image: url('images/image-15.png');">
+  <h2>참고 자료 및 링크</h2>
+  <div class="glass links-list">
+    <ul>
+      <li><strong>미니게임 세트</strong><br>
+        <a href="https://engccer.github.io/word-bomb-L1/" target="_blank" rel="noopener">Word Bomb</a> ·
+        <a href="https://engccer.github.io/story-detective-L1/" target="_blank" rel="noopener">Story Detective</a> ·
+        <a href="https://engccer.github.io/grammar-potion-L1/" target="_blank" rel="noopener">Grammar Potion Lab</a>
+      </li>
+      <li><strong>Pick Me</strong><br>
+        <a href="https://engccer.github.io/pickme/" target="_blank" rel="noopener">engccer.github.io/pickme</a>
+      </li>
+      <li><strong>HWPX-Automation</strong><br>
+        <a href="https://github.com/Engccer/hwpx-automation" target="_blank" rel="noopener">GitHub (오픈소스)</a>
+      </li>
+      <li><strong>이전 발표 원고</strong><br>
+        <a href="https://engccer.github.io/blindusingai/" target="_blank" rel="noopener">바이브 코딩은 장애인교원의 교직 생활을 어떻게 바꾸고 있는가?</a>
+      </li>
+    </ul>
+    <p style="margin-top: 2vh; text-align: center; color: #8b949e;">
+      <strong class="gold">김헌용</strong> · 신명중학교 영어 교사 · 장교조 위원장
+    </p>
+  </div>
+</section>
+
+</div><!-- /slide-container -->
+
+<!-- Navigation -->
+<nav class="nav-bar" aria-label="슬라이드 내비게이션">
+  <button class="nav-btn" id="prevBtn" aria-label="이전 슬라이드">&#9664; 이전</button>
+  <span id="slideCounter" aria-live="off">1 / 15</span>
+  <button class="nav-btn" id="nextBtn" aria-label="다음 슬라이드">다음 &#9654;</button>
+</nav>
+
+<!-- Screen reader announcer -->
+<div class="sr-only" id="announcer" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+// ===== CONFIGURATION =====
+var TOTAL_SLIDES = 15;
+var currentSlide = -1;
+var audioEnabled = true;
+var currentAudio = null;
+
+// ===== DOM REFS =====
+var prevBtn = document.getElementById('prevBtn');
+var nextBtn = document.getElementById('nextBtn');
+var counter = document.getElementById('slideCounter');
+var announcer = document.getElementById('announcer');
+var progressBarEl = document.getElementById('progressBar');
+var allSlides = document.querySelectorAll('.slide');
+
+// ===== PARTICLE GENERATION =====
+(function generateParticles() {
+  var container = document.getElementById('particles');
+  for (var i = 0; i < 25; i++) {
+    var p = document.createElement('div');
+    p.className = 'particle';
+    var size = Math.random() * 4 + 2;
+    var colors = ['rgba(167,139,250,0.3)', 'rgba(93,230,200,0.3)', 'rgba(245,200,66,0.2)'];
+    var color = colors[Math.floor(Math.random() * colors.length)];
+    p.style.cssText = 'width:' + size + 'px;height:' + size + 'px;left:' + (Math.random()*100) + '%;background:' + color + ';--dur:' + (Math.random()*15+10) + 's;--delay:' + (Math.random()*10) + 's;';
+    container.appendChild(p);
+  }
+})();
+
+// ===== AUDIO SYSTEM =====
+var SFX = {
+  'slide-transition': 'sfx/slide-transition.mp3',
+  'section-change': 'sfx/section-change.mp3',
+  'level-up': 'sfx/level-up.mp3'
+};
+
+function stopCurrentAudio() {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+    currentAudio = null;
+  }
+}
+
+function playSfx(name) {
+  if (!audioEnabled || !SFX[name]) return;
+  try {
+    var audio = new Audio(SFX[name]);
+    audio.volume = 0.3;
+    audio.play().catch(function() {});
+  } catch(e) {}
+}
+
+function playNarration(slideNum) {
+  if (!audioEnabled) return;
+  var path = 'narration/slide-' + String(slideNum).padStart(2, '0') + '_gemini_tts.wav';
+  try {
+    var audio = new Audio(path);
+    currentAudio = audio;
+    audio.play().catch(function() {});
+  } catch(e) {}
+}
+
+// ===== SLIDE NAVIGATION =====
+function goToSlide(n) {
+  if (n < 0 || n >= TOTAL_SLIDES || n === currentSlide) return;
+
+  // Hide old slide
+  if (currentSlide >= 0) {
+    var oldSlide = allSlides[currentSlide];
+    oldSlide.classList.remove('active');
+    oldSlide.setAttribute('aria-hidden', 'true');
+  }
+
+  // Stop current audio
+  stopCurrentAudio();
+
+  // Show new slide
+  currentSlide = n;
+  var newSlide = allSlides[n];
+  newSlide.classList.add('active');
+  newSlide.setAttribute('aria-hidden', 'false');
+
+  // Update counter
+  counter.textContent = (n + 1) + ' / ' + TOTAL_SLIDES;
+
+  // Update progress bar
+  var pct = ((n + 1) / TOTAL_SLIDES) * 100;
+  progressBarEl.style.width = pct + '%';
+  progressBarEl.setAttribute('aria-valuenow', pct);
+
+  // Announce to screen reader
+  var label = newSlide.getAttribute('aria-label') || ('슬라이드 ' + (n + 1));
+  announcer.textContent = label;
+
+  // Play SFX
+  var sfxName = newSlide.getAttribute('data-sfx');
+  if (sfxName) playSfx(sfxName);
+
+  // Play narration (slight delay for SFX)
+  setTimeout(function() { playNarration(n + 1); }, 400);
+
+  // Update button states
+  prevBtn.disabled = (n === 0);
+  nextBtn.disabled = (n === TOTAL_SLIDES - 1);
+}
+
+// ===== EVENT LISTENERS =====
+prevBtn.addEventListener('click', function() { goToSlide(currentSlide - 1); });
+nextBtn.addEventListener('click', function() { goToSlide(currentSlide + 1); });
+
+prevBtn.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goToSlide(currentSlide - 1); }
+});
+nextBtn.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goToSlide(currentSlide + 1); }
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  switch(e.key) {
+    case 'ArrowRight':
+    case 'Enter':
+      e.preventDefault(); goToSlide(currentSlide + 1); break;
+    case 'ArrowLeft':
+    case 'Backspace':
+      e.preventDefault(); goToSlide(currentSlide - 1); break;
+    case 'Home':
+      e.preventDefault(); goToSlide(0); break;
+    case 'End':
+      e.preventDefault(); goToSlide(TOTAL_SLIDES - 1); break;
+  }
+});
+
+// Audio toggle
+document.getElementById('audioToggle').addEventListener('click', function() {
+  audioEnabled = !audioEnabled;
+  this.innerHTML = audioEnabled ? '&#x1F50A;' : '&#x1F507;';
+  this.setAttribute('aria-pressed', String(audioEnabled));
+  this.setAttribute('aria-label', audioEnabled ? '오디오 끄기' : '오디오 켜기');
+  if (!audioEnabled) stopCurrentAudio();
+});
+
+document.getElementById('audioToggle').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.click(); }
+});
+
+// ===== INIT =====
+// Hide all slides initially
+for (var i = 0; i < allSlides.length; i++) {
+  allSlides[i].setAttribute('aria-hidden', 'true');
+}
+// Show first slide
+goToSlide(0);
+</script>
+
+</body>
+</html>

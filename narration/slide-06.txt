@@ -1,0 +1,1 @@
+Story Detective와 Grammar Potion Lab은 음성, 이미지, 효과음을 풍부하게 사용한 멀티미디어 게임입니다. 데이터의 정확성은 AI에게만 맡기면 안 된다는 교훈을 얻었습니다.
