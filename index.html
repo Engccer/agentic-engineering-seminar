@@ -567,6 +567,7 @@ var TOTAL_SLIDES = 15;
 var currentSlide = -1;
 var audioEnabled = true;
 var currentAudio = null;
+var narrationTimer = null;
 
 // ===== DOM REFS =====
 var prevBtn = document.getElementById('prevBtn');
@@ -635,7 +636,8 @@ function goToSlide(n) {
     oldSlide.setAttribute('aria-hidden', 'true');
   }
 
-  // Stop current audio
+  // Cancel pending narration timer and stop current audio
+  if (narrationTimer) { clearTimeout(narrationTimer); narrationTimer = null; }
   stopCurrentAudio();
 
   // Show new slide
@@ -661,7 +663,7 @@ function goToSlide(n) {
   if (sfxName) playSfx(sfxName);
 
   // Play narration (slight delay for SFX)
-  setTimeout(function() { playNarration(n + 1); }, 400);
+  narrationTimer = setTimeout(function() { narrationTimer = null; playNarration(n + 1); }, 400);
 
   // Update button states
   prevBtn.disabled = (n === 0);
